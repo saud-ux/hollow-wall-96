@@ -12,7 +12,7 @@
 |---|---|
 | `index.html` | صفحة الزائر — نموذج كتابة الرسالة (للجوال) |
 | `screen.html` | شاشة التلفزيون — جدار الرسائل المباشر |
-| `admin.html` | لوحة الإشراف — حذف الرسائل غير المناسبة |
+| `hollow-ghada-96-moderation-77bf9e8279.html` | لوحة الإشراف — حذف الرسائل غير المناسبة |
 | `qr.html` | ورقة QR جاهزة للطباعة بمقاس A4 |
 | `firestore.rules` | قواعد الحماية — تُنشر إلى Firebase |
 | `netlify.toml` | إعدادات النشر على Netlify |
@@ -33,7 +33,7 @@
 من القائمة الجانبية: **Authentication → Sign-in method**، وفعّل طريقتين:
 
 - **Anonymous** — يستخدمها الزوار للكتابة دون تسجيل.
-- **Email/Password** — يستخدمها المشرف للدخول إلى `admin.html`.
+- **Email/Password** — يستخدمها المشرف للدخول إلى `hollow-ghada-96-moderation-77bf9e8279.html`.
 
 ### ٣. إنشاء حساب المشرف ونسخ الـ UID
 
@@ -97,7 +97,7 @@ chrome --kiosk --incognito --noerrdialogs --disable-session-crashed-bubble "http
 
 ### ٩. لوحة الإشراف
 
-`https://YOUR-SITE.netlify.app/admin.html` — سجّل الدخول بحساب المشرف المُنشأ في الخطوة ٣.
+`https://YOUR-SITE.onrender.com/hollow-ghada-96-moderation-77bf9e8279.html` — سجّل الدخول بحساب المشرف المُنشأ في الخطوة ٣.
 الصفحة تحمل `noindex` ولا يُشار إليها من أي صفحة أخرى.
 
 ### ١٠. ورقة QR للطباعة

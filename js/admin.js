@@ -1,5 +1,5 @@
 // ============================================================================
-// Hollow — moderation console (admin.html)
+// Hollow — moderation console (hollow-ghada-96-moderation-77bf9e8279.html)
 //
 // - Email/password gate. The client-side check that "you are the admin" is
 //   only for UX; the delete permission is enforced by firestore.rules against
