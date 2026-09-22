@@ -15,7 +15,7 @@ import {
   toArabicDigits,
 } from "./filters.js";
 
-const COOLDOWN_MS = 45_000;
+const COOLDOWN_MS = 20_000;
 const LS_KEY = "hollow:lastPost";
 const NET_TIMEOUT_MS = 12_000;
 
@@ -117,7 +117,7 @@ function writeLastPost(value) {
   try {
     localStorage.setItem(LS_KEY, String(value));
   } catch {
-    /* private mode — the Security Rules still enforce the 45s window */
+    /* private mode — the Security Rules still enforce the 20s window */
   }
 }
 
@@ -296,7 +296,7 @@ function onFailed(err) {
   }
 
   if (err?.stage === "throttle" && code === "permission-denied") {
-    // Server-side rate limit: the 45s window has not elapsed for this uid.
+    // Server-side rate limit: the 20s window has not elapsed for this uid.
     writeLastPost(Date.now());
     pending = null;
     throttleAttempted = false;

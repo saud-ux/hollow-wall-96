@@ -64,7 +64,7 @@ service cloud.firestore {
     //   lastPost    timestamp — serves as the server-side rate-limit anchor.
     //
     // The client writes this doc FIRST, then the message. A second submission
-    // within 45 seconds is rejected here before the message rule ever runs.
+    // within 20 seconds is rejected here before the message rule ever runs.
     // ------------------------------------------------------------------------
     match /throttle/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
@@ -80,7 +80,7 @@ service cloud.firestore {
         && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['lastPost'])
         && request.resource.data.lastPost == request.time
-        && request.time > resource.data.lastPost + duration.value(45, 's');
+        && request.time > resource.data.lastPost + duration.value(20, 's');
 
       allow delete: if isAdmin();
     }
