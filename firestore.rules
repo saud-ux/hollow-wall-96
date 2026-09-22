@@ -1,0 +1,93 @@
+rules_version = '2';
+
+// ============================================================================
+// Hollow — Firestore Security Rules
+// ============================================================================
+//
+// ADMIN_UID:
+//   Paste the admin user's UID inside adminUid() below.
+//   How to get it:
+//     1. Open Firebase Console → Authentication → Sign-in method
+//        and enable "Email/Password".
+//     2. Authentication → Users → "Add user" → create the admin account
+//        (e.g. admin@hollow.cafe).
+//     3. Copy the "User UID" value shown on that row.
+//     4. Replace PASTE_ADMIN_UID_HERE below with that UID string.
+//
+// Deploy after editing:
+//     firebase deploy --only firestore:rules
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function adminUid() {
+      // Copy from: Firebase Console → Authentication → Users → admin row → "User UID"
+      return 'ZEEQkgHgfDXmeufhWqXniZ6Sau12';
+    }
+
+    function isAdmin() {
+      return request.auth != null && request.auth.uid == adminUid();
+    }
+
+    // ------------------------------------------------------------------------
+    // messages/{id}
+    //   text        string 1..150
+    //   name        string 1..20
+    //   anonymous   bool
+    //   createdAt   serverTimestamp (== request.time)
+    //   uid         string (must equal request.auth.uid)
+    // ------------------------------------------------------------------------
+    match /messages/{messageId} {
+      allow read: if true;
+
+      allow create: if
+        request.auth != null
+        && request.resource.data.keys().hasOnly(
+             ['text', 'name', 'anonymous', 'createdAt', 'uid'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 1
+        && request.resource.data.text.size() <= 150
+        && request.resource.data.name is string
+        && request.resource.data.name.size() >= 1
+        && request.resource.data.name.size() <= 20
+        && request.resource.data.anonymous is bool
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------------
+    // throttle/{uid}
+    //   lastPost    timestamp — serves as the server-side rate-limit anchor.
+    //
+    // The client writes this doc FIRST, then the message. A second submission
+    // within 45 seconds is rejected here before the message rule ever runs.
+    // ------------------------------------------------------------------------
+    match /throttle/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      allow create: if
+        request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['lastPost'])
+        && request.resource.data.lastPost == request.time;
+
+      allow update: if
+        request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['lastPost'])
+        && request.resource.data.lastPost == request.time
+        && request.time > resource.data.lastPost + duration.value(45, 's');
+
+      allow delete: if isAdmin();
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

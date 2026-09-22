@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0B0F0D">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Hollow — الإدارة</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23006C35'/%3E%3Cpath d='M10 8h3v6.5h6V8h3v16h-3v-6.5h-6V24h-3z' fill='%23D9B26A'/%3E%3C/svg%3E">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body class="page-admin">
+  <div class="glow" aria-hidden="true"></div>
+
+  <!-- ============================== Login gate ============================== -->
+  <section id="login" class="gate" aria-labelledby="loginTitle">
+    <header class="brand">
+      <h1 class="brand__name">Hollow</h1>
+      <p class="brand__tag">لوحة الإدارة</p>
+    </header>
+
+    <form id="loginForm" class="panel" novalidate autocomplete="on">
+      <h2 id="loginTitle" class="panel__title">تسجيل الدخول</h2>
+
+      <div class="field">
+        <label class="field__label" for="email">البريد الإلكتروني</label>
+        <input id="email" name="email" type="email" class="input"
+               autocomplete="username" required inputmode="email" dir="ltr">
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="password">كلمة المرور</label>
+        <input id="password" name="password" type="password" class="input"
+               autocomplete="current-password" required dir="ltr">
+      </div>
+
+      <p id="loginError" class="alert" role="alert" hidden></p>
+
+      <button id="loginBtn" type="submit" class="btn btn--primary">
+        <span id="loginLabel">دخول</span>
+      </button>
+    </form>
+  </section>
+
+  <!-- ============================== Console ============================== -->
+  <section id="console" class="console" hidden>
+    <header class="topbar">
+      <div class="topbar__brand">
+        <span class="topbar__logo">Hollow</span>
+        <span class="topbar__crumb">الإدارة</span>
+      </div>
+
+      <div class="topbar__meta">
+        <span id="who" class="topbar__who"></span>
+        <span id="conn" class="pill pill--ok" role="status">
+          <i class="pill__dot" aria-hidden="true"></i><span id="connText">متصل</span>
+        </span>
+        <button id="signOut" type="button" class="btn btn--ghost btn--sm">تسجيل الخروج</button>
+      </div>
+    </header>
+
+    <section class="stats">
+      <article class="stat">
+        <span class="stat__num" id="statVisible">—</span>
+        <span class="stat__label">في القائمة</span>
+      </article>
+      <article class="stat">
+        <span class="stat__num" id="statTotal">—</span>
+        <span class="stat__label">إجمالي الرسائل</span>
+      </article>
+      <div class="stats__actions">
+        <button id="wipeBtn" type="button" class="btn btn--danger">حذف الكل</button>
+      </div>
+    </section>
+
+    <p id="listStatus" class="list-status" role="status" hidden></p>
+    <ul id="list" class="list" aria-live="polite"></ul>
+
+    <p id="listFooter" class="list-footer" hidden>
+      يعرض أحدث <b id="footerCount">١٠٠</b> رسالة فقط.
+    </p>
+  </section>
+
+  <!-- ============================== Toasts ============================== -->
+  <div id="toasts" class="toasts" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ============================== Delete-one confirm ============================== -->
+  <dialog id="confirmOne" class="modal">
+    <form method="dialog" class="modal__body">
+      <h2 class="modal__title">حذف هذه الرسالة؟</h2>
+      <div id="confirmOnePreview" class="modal__preview"></div>
+      <p class="modal__hint">لا يمكن التراجع. ستختفي من الشاشة خلال ثانية.</p>
+      <div class="modal__actions">
+        <button value="cancel" class="btn btn--ghost">تراجع</button>
+        <button id="confirmOneOk" value="ok" class="btn btn--danger">حذف</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ============================== Delete-all: double confirm ============================== -->
+  <dialog id="confirmAll" class="modal">
+    <form method="dialog" class="modal__body">
+      <h2 class="modal__title">حذف كل الرسائل؟</h2>
+      <p class="modal__hint">
+        سيتم مسح كل الرسائل من قاعدة البيانات نهائيًا — استخدمها بعد انتهاء الفعالية.
+      </p>
+      <p class="modal__hint modal__hint--warn">
+        اكتب <b>حذف الكل</b> للتأكيد.
+      </p>
+      <input id="confirmAllPhrase" class="input" autocomplete="off" spellcheck="false"
+             placeholder="اكتب: حذف الكل" required>
+      <p id="confirmAllProgress" class="modal__progress" hidden></p>
+      <div class="modal__actions">
+        <button value="cancel" class="btn btn--ghost">تراجع</button>
+        <button id="confirmAllOk" value="ok" class="btn btn--danger" disabled>حذف نهائي</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

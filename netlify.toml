@@ -1,0 +1,33 @@
+# Hollow — Netlify configuration
+# Static site: no build step required. Drag & drop the folder, or connect the repo.
+
+[build]
+  publish = "."
+  command = ""
+
+# Sensible security defaults for a public-facing display + form.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# HTML must always revalidate so config or copy changes ship immediately.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# JS/CSS: short cache. We are not fingerprinting filenames — 5 minutes is plenty
+# so that a quick fix during the event goes live without waiting on CDN TTLs.
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
+
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=300"
