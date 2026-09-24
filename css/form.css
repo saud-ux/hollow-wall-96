@@ -176,6 +176,12 @@ html:has(.page-form) { background: #7B6DB2; }
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  transition: opacity var(--dur) var(--ease);
+}
+
+.field.is-disabled {
+  opacity: 0.35;
+  pointer-events: none;
 }
 
 .field__head {

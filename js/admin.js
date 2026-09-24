@@ -1,9 +1,9 @@
 // ============================================================================
 // Hollow — moderation console (hollow-ghada-96-moderation-77bf9e8279.html)
 //
-// - Email/password gate. The client-side check that "you are the admin" is
-//   only for UX; the delete permission is enforced by firestore.rules against
-//   ADMIN_UID. A signed-in visitor still cannot delete.
+// - No sign-in screen: the page signs in anonymously and opens straight on the
+//   list. Anyone who has this URL can delete, by request of the cafe owner —
+//   the unguessable path is the only thing standing in front of it.
 // - One live listener over the newest 100 messages so the list reflects any
 //   phone submission in real time.
 // - Single-confirm delete for one message. Double-confirm delete-all (a phrase
@@ -19,19 +19,10 @@ const MAX_BACKOFF_MS = 60_000;
 const CONFIRM_ALL_PHRASE = "حذف الكل";
 
 const el = {
-  login: document.getElementById("login"),
-  loginForm: document.getElementById("loginForm"),
-  email: document.getElementById("email"),
-  password: document.getElementById("password"),
-  loginBtn: document.getElementById("loginBtn"),
-  loginLabel: document.getElementById("loginLabel"),
-  loginError: document.getElementById("loginError"),
-
   console: document.getElementById("console"),
   who: document.getElementById("who"),
   conn: document.getElementById("conn"),
   connText: document.getElementById("connText"),
-  signOut: document.getElementById("signOut"),
 
   statVisible: document.getElementById("statVisible"),
   statTotal: document.getElementById("statTotal"),
@@ -83,6 +74,7 @@ async function loadFirebase() {
   // Persist across refreshes so the console isn't kicked back to login every reload.
   await fb.authMod.setPersistence(fb.auth, fb.authMod.browserLocalPersistence);
   fb.authMod.onAuthStateChanged(fb.auth, onAuthChange);
+  if (!fb.auth.currentUser) await fb.authMod.signInAnonymously(fb.auth);
   return fb;
 }
 
@@ -135,86 +127,19 @@ function toast(message, kind = "info") {
 }
 
 // ---------------------------------------------------------------------------
-// Login gate
-// ---------------------------------------------------------------------------
-
-function showLoginError(message) {
-  el.loginError.hidden = false;
-  el.loginError.textContent = message;
-}
-
-function clearLoginError() {
-  el.loginError.hidden = true;
-  el.loginError.textContent = "";
-}
-
-function setLoginBusy(busy) {
-  el.loginBtn.disabled = busy;
-  el.loginLabel.textContent = busy ? "جارٍ الدخول…" : "دخول";
-}
-
-async function onLoginSubmit(event) {
-  event.preventDefault();
-  clearLoginError();
-  const email = el.email.value.trim();
-  const password = el.password.value;
-  if (!email || !password) {
-    showLoginError("أدخل البريد وكلمة المرور.");
-    return;
-  }
-  setLoginBusy(true);
-  try {
-    await loadFirebase();
-    await fb.authMod.signInWithEmailAndPassword(fb.auth, email, password);
-    // onAuthChange takes it from here.
-  } catch (err) {
-    setLoginBusy(false);
-    const code = err?.code || "";
-    if (code === "auth/invalid-credential"
-        || code === "auth/wrong-password"
-        || code === "auth/user-not-found"
-        || code === "auth/invalid-email") {
-      showLoginError("بيانات الدخول غير صحيحة.");
-    } else if (code === "auth/too-many-requests") {
-      showLoginError("محاولات كثيرة. انتظر دقيقة قبل المحاولة مرة أخرى.");
-    } else if (code === "auth/network-request-failed") {
-      showLoginError("تعذّر الاتصال بالشبكة. تأكد من الإنترنت.");
-    } else {
-      showLoginError("حدث خطأ غير متوقع أثناء الدخول.");
-      console.warn("[hollow admin] sign-in error", err);
-    }
-  }
-}
-
-async function onSignOut() {
-  try {
-    await fb.authMod.signOut(fb.auth);
-    location.reload();
-  } catch (err) {
-    toast("تعذّر تسجيل الخروج.", "error");
-    console.warn(err);
-  }
-}
-
-// ---------------------------------------------------------------------------
 // Auth state → what the page shows
 // ---------------------------------------------------------------------------
 
 function onAuthChange(user) {
   currentUser = user;
   if (user) {
-    el.login.hidden = true;
     el.console.hidden = false;
-    el.who.textContent = user.email || "المشرف";
+    el.who.textContent = "";
     startListener();
     refreshTotal();
-    setLoginBusy(false);
   } else {
     el.console.hidden = true;
-    el.login.hidden = false;
     stopListener();
-    setLoginBusy(false);
-    el.password.value = "";
   }
 }
 
@@ -530,8 +455,6 @@ function withTimeout(promise, ms) {
 // Wire up
 // ---------------------------------------------------------------------------
 
-el.loginForm.addEventListener("submit", onLoginSubmit);
-el.signOut.addEventListener("click", onSignOut);
 el.wipeBtn.addEventListener("click", openWipeDialog);
 el.confirmAll.addEventListener("close", () => {
   if (el.confirmAll.returnValue !== "ok") return;
@@ -552,7 +475,8 @@ window.addEventListener("online", () => {
   if (currentUser && !unsubscribeList) startListener();
 });
 
-// Warm up the SDK so the first login click doesn't wait on a cold import.
+// Sign in anonymously and open the list — there is no gate to pass.
 loadFirebase().catch((err) => {
   console.warn("[hollow admin] Firebase load failed", err);
+  setListStatus("تعذّر الاتصال. حدّث الصفحة.");
 });

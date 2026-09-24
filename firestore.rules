@@ -56,7 +56,10 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time;
 
       allow update: if false;
-      allow delete: if isAdmin();
+      // Opened by the owner's request: the moderation console signs in
+      // anonymously, so any signed-in session can delete. The unguessable
+      // console path is the only thing in front of this.
+      allow delete: if request.auth != null;
     }
 
     // ------------------------------------------------------------------------

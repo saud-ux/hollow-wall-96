@@ -18,7 +18,7 @@
 import { firebaseConfig, FIREBASE_SDK_BASE } from "./firebase-config.js";
 import { renderQr, visitorUrl } from "./qr.js";
 
-const LIMIT = 12;
+const LIMIT = 500;
 
 const MOVE_MS = 760;
 const ENTER_MS = 720;
@@ -254,6 +254,10 @@ function render(views) {
 
   entering.forEach((card, order) => enterCard(card, { animate, initial, order }));
 
+  if (entering.length > 0 && el.wall.scrollTop < unitPx() * 16) {
+    el.wall.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
   if (views.length > 0) firstPaint = false;
   updateEmptyState();
 }
@@ -298,8 +302,8 @@ function exitCard(card, rect, wallBox) {
   // Lift the card out of the grid into the ghost layer at its exact on-screen
   // box, so the grid can reflow immediately while this one fades in place.
   card.classList.add("is-leaving");
-  card.style.left = `${rect.left - wallBox.left}px`;
-  card.style.top = `${rect.top - wallBox.top}px`;
+  card.style.left = `${rect.left - wallBox.left + el.wall.scrollLeft}px`;
+  card.style.top = `${rect.top - wallBox.top + el.wall.scrollTop}px`;
   card.style.width = `${rect.width}px`;
   card.style.height = `${rect.height}px`;
   el.ghosts.append(card);

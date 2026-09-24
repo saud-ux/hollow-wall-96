@@ -334,11 +334,11 @@ async function onSubmit(event) {
   }
 
   const text = normalizeText(el.text.value);
-  const name = normalizeName(el.name.value);
+  const anonymous = el.anon.checked;
+  const name = anonymous ? "زائر" : normalizeName(el.name.value);
 
-  // Reflect the cleaned-up values so the visitor sees exactly what is sent.
   el.text.value = text;
-  el.name.value = name;
+  if (!anonymous) el.name.value = name;
   updateCounter();
 
   const textCheck = validateMessage(text);
@@ -348,14 +348,16 @@ async function onSubmit(event) {
     return;
   }
 
-  const nameCheck = validateName(name);
-  if (!nameCheck.ok) {
-    showError(nameCheck.error);
-    el.name.focus();
-    return;
+  if (!anonymous) {
+    const nameCheck = validateName(name);
+    if (!nameCheck.ok) {
+      showError(nameCheck.error);
+      el.name.focus();
+      return;
+    }
   }
 
-  pending = { text, name, anonymous: el.anon.checked, retried: false };
+  pending = { text, name, anonymous, retried: false };
   throttleAttempted = false;
   throttleClaimed = false;
   await send();
@@ -383,10 +385,17 @@ function renderConnectivity() {
 // Wire up
 // ---------------------------------------------------------------------------
 
+function syncNameField() {
+  const hide = el.anon.checked;
+  el.name.disabled = hide;
+  el.name.closest(".field").classList.toggle("is-disabled", hide);
+}
+
 el.form.addEventListener("submit", onSubmit);
 el.retry.addEventListener("click", onRetry);
 el.again.addEventListener("click", showForm);
 el.text.addEventListener("input", updateCounter);
+el.anon.addEventListener("change", syncNameField);
 window.addEventListener("online", renderConnectivity);
 window.addEventListener("offline", renderConnectivity);
 

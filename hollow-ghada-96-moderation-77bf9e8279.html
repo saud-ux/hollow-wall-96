@@ -20,36 +20,6 @@
 <body class="page-admin">
   <div class="glow" aria-hidden="true"></div>
 
-  <!-- ============================== Login gate ============================== -->
-  <section id="login" class="gate" aria-labelledby="loginTitle">
-    <header class="brand">
-      <h1 class="brand__name">Hollow</h1>
-      <p class="brand__tag">لوحة الإدارة</p>
-    </header>
-
-    <form id="loginForm" class="panel" novalidate autocomplete="on">
-      <h2 id="loginTitle" class="panel__title">تسجيل الدخول</h2>
-
-      <div class="field">
-        <label class="field__label" for="email">البريد الإلكتروني</label>
-        <input id="email" name="email" type="email" class="input"
-               autocomplete="username" required inputmode="email" dir="ltr">
-      </div>
-
-      <div class="field">
-        <label class="field__label" for="password">كلمة المرور</label>
-        <input id="password" name="password" type="password" class="input"
-               autocomplete="current-password" required dir="ltr">
-      </div>
-
-      <p id="loginError" class="alert" role="alert" hidden></p>
-
-      <button id="loginBtn" type="submit" class="btn btn--primary">
-        <span id="loginLabel">دخول</span>
-      </button>
-    </form>
-  </section>
-
   <!-- ============================== Console ============================== -->
   <section id="console" class="console" hidden>
     <header class="topbar">
@@ -63,7 +33,6 @@
         <span id="conn" class="pill pill--ok" role="status">
           <i class="pill__dot" aria-hidden="true"></i><span id="connText">متصل</span>
         </span>
-        <button id="signOut" type="button" class="btn btn--ghost btn--sm">تسجيل الخروج</button>
       </div>
     </header>
 
